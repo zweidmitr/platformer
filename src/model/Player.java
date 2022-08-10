@@ -1,26 +1,30 @@
 package model;
 
-import utilz.LoadSave;
+import static utilz.Constants.PlayerConstants.*;
+import static utilz.HelpMethods.CanMoveHere;
 
-import java.awt.*;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
-import static utilz.Constants.PlayerConstants.*;
+import main.Game;
+import utilz.LoadSave;
 
 public class Player extends Entity {
     private BufferedImage[][] animations;
-    private int aniTick, aniIndex, aniSpeed = 15;
+    private int aniTick, aniIndex, aniSpeed = 25;
     private int playerAction = IDLE;
     private boolean moving = false, attacking = false;
     private boolean left, up, right, down;
     private float playerSpeed = 2.0f;
-    private int height, width;
+    private int[][] lvlData;
+    private float xDrawOffset = 21 * Game.SCALE;
+    private float yDrawOffset = 4 * Game.SCALE;
 
     public Player(float x, float y, int width, int height) {
-        super(x, y);
-        this.width = width;
-        this.height = height;
+        super(x, y, width, height);
         loadAnimations();
+        initHitbox(x, y, 20 * Game.SCALE, 28 * Game.SCALE);
+
     }
 
     public void update() {
@@ -30,7 +34,8 @@ public class Player extends Entity {
     }
 
     public void render(Graphics g) {
-        g.drawImage(animations[playerAction][aniIndex], (int) x, (int) y, width, height, null);
+        g.drawImage(animations[playerAction][aniIndex], (int) (hitbox.x - xDrawOffset), (int) (hitbox.y - yDrawOffset), width, height, null);
+        drawHitbox(g);
     }
 
     private void updateAnimationTick() {
@@ -42,22 +47,24 @@ public class Player extends Entity {
                 aniIndex = 0;
                 attacking = false;
             }
+
         }
+
     }
 
     private void setAnimation() {
         int startAni = playerAction;
 
-        if (moving) {
+        if (moving)
             playerAction = RUNNING;
-        } else playerAction = IDLE;
+        else
+            playerAction = IDLE;
 
-        if (attacking) {
+        if (attacking)
             playerAction = ATTACK_1;
-        }
-        if (startAni != playerAction) {
+
+        if (startAni != playerAction)
             resetAniTick();
-        }
     }
 
     private void resetAniTick() {
@@ -66,33 +73,49 @@ public class Player extends Entity {
     }
 
     private void updatePos() {
-
         moving = false;
-        if (left && !right) {
-            x -= playerSpeed;
-            moving = true;
-        } else if (right && !left) {
-            x += playerSpeed;
+        if (!left && !right && !up && !down)
+            return;
+
+        float xSpeed = 0, ySpeed = 0;
+
+        if (left && !right)
+            xSpeed = -playerSpeed;
+        else if (right && !left)
+            xSpeed = playerSpeed;
+
+        if (up && !down)
+            ySpeed = -playerSpeed;
+        else if (down && !up)
+            ySpeed = playerSpeed;
+
+//		if (CanMoveHere(x + xSpeed, y + ySpeed, width, height, lvlData)) {
+//			this.x += xSpeed;
+//			this.y += ySpeed;
+//			moving = true;
+//		}
+
+        if (CanMoveHere(hitbox.x + xSpeed, hitbox.y + ySpeed, hitbox.width, hitbox.height, lvlData)) {
+            hitbox.x += xSpeed;
+            hitbox.y += ySpeed;
             moving = true;
         }
 
-        if (up && !down) {
-            y -= playerSpeed;
-            moving = true;
-        } else if (down && !up) {
-            y += playerSpeed;
-            moving = true;
-        }
     }
 
     private void loadAnimations() {
+
         BufferedImage img = LoadSave.getSpriteAtlas(LoadSave.PLAYER_ATLAS);
+
         animations = new BufferedImage[9][6];
-        for (int j = 0; j < animations.length; j++) {
-            for (int i = 0; i < animations[j].length; i++) {
+        for (int j = 0; j < animations.length; j++)
+            for (int i = 0; i < animations[j].length; i++)
                 animations[j][i] = img.getSubimage(i * 64, j * 40, 64, 40);
-            }
-        }
+
+    }
+
+    public void loadLvlData(int[][] lvlData) {
+        this.lvlData = lvlData;
     }
 
     public void resetDirBooleans() {
@@ -100,6 +123,10 @@ public class Player extends Entity {
         right = false;
         up = false;
         down = false;
+    }
+
+    public void setAttacking(boolean attacking) {
+        this.attacking = attacking;
     }
 
     public boolean isLeft() {
@@ -134,7 +161,4 @@ public class Player extends Entity {
         this.down = down;
     }
 
-    public void setAttacking(boolean attacking) {
-        this.attacking = attacking;
-    }
 }
