@@ -20,8 +20,8 @@ public class Constants {
         public static final int ATTACK_JUMP_1 = 7;
         public static final int ATTACK_JUMP_2 = 8;
 
-        public static int GetSpriteAmount(int playerAction) {
-            switch (playerAction) {
+        public static int GetSpriteAmount(int player_action) {
+            switch (player_action) {
                 case RUNNING:
                     return 6;
                 case IDLE:
@@ -41,4 +41,5 @@ public class Constants {
             }
         }
     }
+
 }

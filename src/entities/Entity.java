@@ -1,6 +1,8 @@
-package model;
+package entities;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 
 public abstract class Entity {
@@ -36,4 +38,5 @@ public abstract class Entity {
     public Rectangle2D.Float getHitbox() {
         return hitbox;
     }
+
 }

@@ -2,10 +2,11 @@ package main;
 
 import java.awt.Graphics;
 
-import model.Player;
+import entities.Player;
 import levels.LevelManager;
 
 public class Game implements Runnable {
+
     private GameWindow gameWindow;
     private GamePanel gamePanel;
     private Thread gameThread;
